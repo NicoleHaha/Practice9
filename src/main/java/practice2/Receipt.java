@@ -4,17 +4,29 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class Receipt {
-
+    private BigDecimal tax;
+    private BigDecimal subTotal;
     public Receipt() {
         tax = new BigDecimal(0.1);
         tax = tax.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
-    private BigDecimal tax;
-
     public double CalculateGrandTotal(List<Product> products, List<OrderItem> items) {
-        BigDecimal subTotal = calculateSubtotal(products, items);
+        subTotal = calculateSubtotal(products, items);
+        subTotal = calculateDiscount(products, items, subTotal);
+        BigDecimal tax = calculateTax(subTotal);
+        BigDecimal grandTotal = calculateGrandTotal(subTotal,tax);
 
+        return grandTotal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+    public BigDecimal calculateGrandTotal(BigDecimal subTotal,BigDecimal tax){
+        return subTotal.add(tax);
+    }
+    public BigDecimal calculateTax(BigDecimal subTotal) {
+        return subTotal.multiply(tax);
+    }
+
+    public BigDecimal calculateDiscount(List<Product> products, List<OrderItem> items, BigDecimal subTotal) {
         for (Product product : products) {
             OrderItem curItem = findOrderItemByProduct(items, product);
 
@@ -24,10 +36,7 @@ public class Receipt {
 
             subTotal = subTotal.subtract(reducedPrice);
         }
-        BigDecimal taxTotal = subTotal.multiply(tax);
-        BigDecimal grandTotal = subTotal.add(taxTotal);
-
-        return grandTotal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return subTotal;
     }
 
 

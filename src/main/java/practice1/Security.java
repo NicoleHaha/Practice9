@@ -11,28 +11,26 @@ public class Security {
     }
 
     public boolean hasAccess(User user, Permission permission, ImmutableList<Permission> permissions) {
+        if (IsParameterValid(user, permission, permissions)) return false;
+        if (securityChecker.isAdmin()) return true;
+        if (IsPermissionValid(user, permission, permissions)) return true;
+        return false;
+    }
 
-        boolean isAccess = false;
+    public boolean IsPermissionValid(User user, Permission permission, ImmutableList<Permission> permissions) {
+        return this.securityChecker.checkPermission(user, permission) || permissions.contains(permission);
+    }
+
+    public boolean IsParameterValid(User user, Permission permission, ImmutableList<Permission> permissions) {
         if (user == null) {
-            return isAccess;
+            return true;
         }
-
         if (permission == null) {
-            return isAccess;
+            return true;
         }
-
         if (permissions.size() == 0) {
-            return isAccess;
+            return true;
         }
-
-        if (securityChecker.isAdmin()) {
-            isAccess = true;
-        }
-
-        if (this.securityChecker.checkPermission(user, permission) || permissions.contains(permission)) {
-            isAccess = true;
-        }
-
-        return isAccess;
+        return false;
     }
 }
